@@ -1,0 +1,9 @@
+Date,colony_id,Chamber.Channel,Position,Bin.ID,Run,Species,Temp.Cat,Chamber.Vol.L,Notes,Sensor,
+20260211,1,15,,1,1,Pocillopora capitata,24,262,,1,
+20260211,2,12,,1,1,Pocillopora capitata,24,273,,2,
+20260211,3,4,,1,1,Pocillopora capitata,24,272,,3,
+20260211,11,16,,1,1,Porites lobata,24,266,sensor tuch the coral and move up at the first light,4,
+20260211,12,9,,1,1,Porites lobata,24,240,the temp prob was  moved at min 23,6,
+20260211,13,10,,1,1,Porites lobata,24,250,the temp prob was  moved at min 24,5,the stirer didn't work from 150-205min
+20260211,bk1,8,,1,1,blank,24,274,the temp prob was  moved at min 25,8,
+20260211,bk2,13,,1,1,blank,24,268,the temp prob was  moved at min 26,7,
