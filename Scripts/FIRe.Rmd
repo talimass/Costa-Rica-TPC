@@ -16,17 +16,17 @@ library(tidyverse)
 #install.packages("lubridate")
 library(broom)
 library(lubridate)
-install.packages("cowplot")
+#install.packages("cowplot")
 library(cowplot)
 library(tidyverse)
-install.packages("ggtext")
+#install.packages("ggtext")
 library(ggtext)
-install.packages("rstatix")
+#install.packages("rstatix")
 library(rstatix)
 library(car)
-install.packages("FSA")
+#install.packages("FSA")
 library(FSA)
-install.packages("rcompanion")
+#install.packages("rcompanion")
 library(rcompanion)
 library(ggpubr)
 library(dplyr)
@@ -42,6 +42,9 @@ library(ARTool)
 library(multcomp)
 library(rcompanion)
 library(psych)
+#install.packages("tinytex")
+#tinytex::install_tinytex()
+
 ```
 
 #Load Data
@@ -81,16 +84,17 @@ upper <- quartiles[2] + 1.5*IQR_cor
 fvfm_no_outlier <- subset(fire_data, fire_data$fv_fm >lower & fire_data$fv_fm< upper)
 #plot of Each species is in a separate panel using
 
-fvfm <- ggplot(data = fvfm_no_outlier, aes(x = fv_fm, y = Site_depth, fill = Species)) +
-  geom_boxplot() + 
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
+fvfm <- ggplot(fvfm_no_outlier,
+               aes(x = factor(Temp), y = fv_fm, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
   theme_classic() +
-  labs(title = "Quantum Yield of Photochemistry in PSII", 
-       x = "Fv’/Fm’", 
-       y = "Site - depth") +  # Y-axis now represents Site- depth
+  labs(title = "Quantum Yield of PSII by Species",
+       x = "Temperature",
+       y = "Fv/Fm") +
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(fvfm_no_outlier$Site_depth))))  # Reverse order for readability
+  facet_wrap(~ Species)
+
 print(fvfm)
 
 
@@ -104,24 +108,25 @@ ggsave(filename = file_name, plot = fvfm, width = 8, height = 6, dpi = 300)
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
 
-
-#plot with all data points (scatter points) on top of the boxplots
-
-
-# Create the plot with 4 panels, one for each species
-fvfm_plot <- ggplot(data = fvfm_no_outlier, aes(x = fv_fm, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplots with transparency
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black scatter points
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+# Plot with boxplots and all data points (scatter) on top
+fvfm_plot <- ggplot(data = fvfm_no_outlier, 
+                    aes(x = factor(Temp), y = fv_fm, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +   # Boxplots
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +  # Scatter points
+  stat_boxplot(geom = "errorbar", width = 0.5) +    # Error bars
+  
   theme_classic() +
-  labs(title = "Quantum Yield of PSII by Species", 
-       x = "Fv’/Fm’", 
-       y = "Site-depth") +  
+  
+  labs(title = "Quantum Yield of PSII by Species",
+       x = "Temperature",
+       y = "Fv/Fm") +
+  
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(fvfm_no_outlier$Site_depth))))  
+  
+  facet_wrap(~ Species, ncol = 2)
 
-# Display the plot in R before saving
+# Display plot
 print(fvfm_plot)
 
 # Define the file name and path for saving
@@ -132,6 +137,7 @@ ggsave(filename = file_name, plot = fvfm_plot, width = 8, height = 6, dpi = 300)
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
+
 
 
 ```
@@ -164,19 +170,23 @@ upper <- quartiles[2] + 1.5 * IQR_cor
 sigma_no_outlier <- subset(fire_data, Sigma > lower & Sigma < upper)
 
 # Create the plot
-sigma_plot <- ggplot(data = sigma_no_outlier, aes(x = Sigma, y = Site_depth, fill = Species)) +  # Use 'Sigma' here
-  geom_boxplot() +
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
-  theme_classic() +
-  labs(title = "Functional Absorption Cross-section of PSII", 
-       x = "σPSII’(A2)", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
-  theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(sigma_no_outlier$Site_depth))))  # Reverse order for readability
 
-# Print the plot
+sigma_plot <- ggplot(sigma_no_outlier,
+               aes(x = factor(Temp), y = Sigma, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
+  theme_classic() +
+  labs(title = "Functional Absorption Cross-section of PSII",
+       x = "Temperature",
+       y = "σPSII’(A2)") +
+  theme(legend.position = "none") +
+  facet_wrap(~ Species)
+
 print(sigma_plot)
+
+
+
+
 
 # Save the plot
 output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
@@ -190,33 +200,38 @@ print(paste("Saved the plot at", file_name))
 
 
 #plot with all data points (scatter points) on top of the boxplots
-
-# Create the plot with 4 panels, one for each species
-
-sigma <- ggplot(data = sigma_no_outlier, aes(x = Sigma, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplot with slight transparency, hides outliers
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black points, smaller size
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+# Boxplot with all data points (scatter) on top
+sigma_plot <- ggplot(data = sigma_no_outlier, 
+                     aes(x = factor(Temp), y = Sigma, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  
   theme_classic() +
-  labs(title = "Functional Absorption Cross-section of PSII", 
-       x = "σPSII’(A2)", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth +  
+  
+  labs(title = "Functional Absorption Cross-section of PSII",
+       x = "Temperature",
+       y = "σPSII’(A2)") +  
   
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(sigma_no_outlier$Site_depth)))) 
+  
+  facet_wrap(~ Species, ncol = 2)
 
-# Display the plot in R before saving
-print(sigma)
+print(sigma_plot)
+
 
 # Define the file name and path for saving
 file_name <- paste0(output_folder, "/sigma.png")
 
+
+
 # Save the plot
-ggsave(filename = file_name, plot = sigma, width = 8, height = 6, dpi = 300)
+ggsave(filename = file_name, plot = sigma_plot, width = 8, height = 6, dpi = 300)
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
+
 ```
 ```{r}
 quartiles <- quantile(fire_data$Pmax.e.s, probs = c(.25,.75))
@@ -229,19 +244,22 @@ Pmax.e.s_no_outlier <- subset(fire_data, fire_data$Pmax.e.s >lower & fire_data$P
 
 
 # Create the plot
-pmax_plot <- ggplot(data = Pmax.e.s_no_outlier, aes(x = Pmax.e.s, y = Site_depth, fill = Species)) +  # Use 'pmax' here
-  geom_boxplot() +
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
-  theme_classic() +
-  labs(title = "Maximum photosynthetic rate", 
-       x = "Pmax (electron s-1 PSII-1)", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
-  theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(Pmax.e.s_no_outlier$Site_depth))))  # Reverse order for readability
 
-# Print the plot
+
+pmax_plot <- ggplot(Pmax.e.s_no_outlier,
+               aes(x = factor(Temp), y = Pmax.e.s, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
+  theme_classic() +
+  labs(title = "Quantum Yield of PSII by Species",
+       x = "Temperature",
+       y = "Pmax (electron s-1 PSII-1)") +
+  theme(legend.position = "none") +
+  facet_wrap(~ Species)
+
 print(pmax_plot)
+
+
 
 # Save the plot
 output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
@@ -253,35 +271,38 @@ ggsave(filename = file_name, plot = pmax_plot, width = 8, height = 6, dpi = 300)
 # Print the saved file location
 print(paste("Saved the plot at", file_name))
 
-
 #plot with all data points (scatter points) on top of the boxplots
 
-# Create the plot with 4 panels, one for each species
-
-pmax <- ggplot(data = Pmax.e.s_no_outlier, aes(x = Pmax.e.s, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplot with slight transparency, hides outliers
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black points, smaller size
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+pmax_plot <- ggplot(Pmax.e.s_no_outlier,
+                    aes(x = factor(Temp), y = Pmax.e.s, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  
   theme_classic() +
-  labs(title = "Maximum photosynthetic rate", 
-       x = "Pmax (electron s-1 PSII-1)", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
+  
+  labs(title = "Maximum Electron Transport Rate (Pmax)",
+       x = "Temperature",
+       y = expression(P[max]~"(electrons s"^{-1}~"PSII"^{-1}*")")) +
   
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(Pmax.e.s_no_outlier$Site_depth)))) 
+  
+  facet_wrap(~ Species)
 
-# Display the plot in R before saving
-print(pmax)
-
-# Define the file name and path for saving
+print(pmax_plot)
+ # Define the file name and path for saving
 file_name <- paste0(output_folder, "/pmax.png")
 
 # Save the plot
-ggsave(filename = file_name, plot = pmax, width = 8, height = 6, dpi = 300)
+ggsave(filename = file_name, 
+       plot = pmax_plot, 
+       width = 8, height = 6, dpi = 300)
+
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
+
 ```
 ```{r}
 str(fire_data$p)
@@ -302,19 +323,21 @@ p_no_outlier <- subset(fire_data, fire_data$p >lower & fire_data$p< upper)
 
 
 # Create the plot
-p_plot <- ggplot(data = p_no_outlier, aes(x = p, y = Site_depth, fill = Species)) +  # Use 'pmax' here
-  geom_boxplot() +
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
-  theme_classic() +
-  labs(title = "connectivity parameter", 
-       x = "p", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
-  theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(p_no_outlier$Site_depth))))  # Reverse order for readability
 
-# Print the plot
+p_plot <- ggplot(p_no_outlier,
+               aes(x = factor(Temp), y = p, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
+  theme_classic() +
+  labs(title = "Conectivity",
+       x = "Temperature",
+       y = "p") +
+  theme(legend.position = "none") +
+  facet_wrap(~ Species)
+
 print(p_plot)
+
+
 
 # Save the plot
 output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
@@ -326,32 +349,32 @@ ggsave(filename = file_name, plot = p_plot, width = 8, height = 6, dpi = 300)
 # Print the saved file location
 print(paste("Saved the plot at", file_name))
 
-
 #plot with all data points (scatter points) on top of the boxplots
 
-# Create the plot with 4 panels, one for each species
-
-p <- ggplot(data = p_no_outlier, aes(x = p, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplot with slight transparency, hides outliers
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black points, smaller size
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+p_plot <- ggplot(p_no_outlier,
+                 aes(x = factor(Temp), y = p, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  
   theme_classic() +
-  labs(title = "connectivity parameter", 
-       x = "p", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
+  
+  labs(title = "Connectivity",
+       x = "Temperature",
+       y = "p (–)") +
   
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(p_no_outlier$Site_depth)))) 
+  
+  facet_wrap(~ Species)
 
-# Display the plot in R before saving
-print(p)
+print(p_plot)
 
 # Define the file name and path for saving
 file_name <- paste0(output_folder, "/p.png")
 
 # Save the plot
-ggsave(filename = file_name, plot = p, width = 8, height = 6, dpi = 300)
+ggsave(filename = file_name, plot = p_plot, width = 8, height = 6, dpi = 300)
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
@@ -375,19 +398,22 @@ Fm_no_outlier <- subset(fire_data, fire_data$Fm >lower & fire_data$Fm< upper)
 
 
 # Create the plot
-Fm_plot <- ggplot(data = Fm_no_outlier, aes(x = Fm, y = Site_depth, fill = Species)) +  # Use 'pmax' here
-  geom_boxplot() +
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
-  theme_classic() +
-  labs(title = "Max Fluorescent", 
-       x = "Fm", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
-  theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(Fm_no_outlier$Site_depth))))  # Reverse order for readability
 
-# Print the plot
+
+Fm_plot <- ggplot(Fm_no_outlier,
+               aes(x = factor(Temp), y = Fm, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
+  theme_classic() +
+  labs(title = "Maximum Fluorescence (Fm)",
+       x = "Temp",
+       y = "Fm") +
+  theme(legend.position = "none") +
+  facet_wrap(~ Species)
+
 print(Fm_plot)
+
+
 
 # Save the plot
 output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
@@ -399,35 +425,36 @@ ggsave(filename = file_name, plot = Fm_plot, width = 8, height = 6, dpi = 300)
 # Print the saved file location
 print(paste("Saved the plot at", file_name))
 
-
 #plot with all data points (scatter points) on top of the boxplots
 
-# Create the plot with 4 panels, one for each species
-
-Fm <- ggplot(data = Fm_no_outlier, aes(x = Fm, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplot with slight transparency, hides outliers
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black points, smaller size
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+Fm_plot <- ggplot(Fm_no_outlier,
+                  aes(x = factor(Temp), y = Fm, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  
   theme_classic() +
-  labs(title = "Max Fluorescent", 
-       x = "Fm", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
+  
+  labs(title = "Maximum Fluorescence (Fm)",
+       x = "Temperature",
+       y = "Fm") +
   
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(Fm_no_outlier$Site_depth)))) 
+  
+  facet_wrap(~ Species)
 
-# Display the plot in R before saving
-print(Fm)
+print(Fm_plot)
 
 # Define the file name and path for saving
 file_name <- paste0(output_folder, "/Fm.png")
 
 # Save the plot
-ggsave(filename = file_name, plot = Fm, width = 8, height = 6, dpi = 300)
+ggsave(filename = file_name, plot = Fm_plot, width = 8, height = 6, dpi = 300)
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
+
 ```
 
 
@@ -449,19 +476,22 @@ TauAv1_no_outlier <- subset(fire_data, fire_data$TauAv1 >lower & fire_data$TauAv
 
 
 # Create the plot
-TauAv1_plot <- ggplot(data = TauAv1_no_outlier, aes(x = TauAv1, y = Site_depth, fill = Species)) +  # Use 'pmax' here
-  geom_boxplot() +
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Removed position="dodge"
-  theme_classic() +
-  labs(title = "Qa reoxidation kinetics in dark", 
-       x = "TauAv1", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
-  theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y") +  # Each species gets a separate panel
-  scale_y_discrete(limits = rev(levels(factor(TauAv1_no_outlier$Site_depth))))  # Reverse order for readability
 
-# Print the plot
+
+
+TauAv1_plot <- ggplot(TauAv1_no_outlier,
+               aes(x = factor(Temp), y = TauAv1, fill = Species)) +
+  geom_boxplot() +
+  stat_boxplot(geom = "errorbar", width = 0.75) +
+  theme_classic() +
+  labs(title = "Qa reoxidation kinetics in dark",
+       x = "Temperature",
+       y = "TauAv1") +
+  theme(legend.position = "none") +
+  facet_wrap(~ Species)
+
 print(TauAv1_plot)
+
 
 # Save the plot
 output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
@@ -473,64 +503,99 @@ ggsave(filename = file_name, plot = TauAv1_plot, width = 8, height = 6, dpi = 30
 # Print the saved file location
 print(paste("Saved the plot at", file_name))
 
-
 #plot with all data points (scatter points) on top of the boxplots
 
-# Create the plot with 4 panels, one for each species
-
-TauAv1 <- ggplot(data = TauAv1_no_outlier, aes(x = TauAv1, y = Site_depth, fill = Species)) +
-  geom_boxplot(alpha = 0.6, outlier.shape = NA) +  # Boxplot with slight transparency, hides outliers
-  geom_jitter(color = "black", width = 0.1, size = 1, alpha = 0.6) +  # Black points, smaller size
-  stat_boxplot(geom = "errorbar", width = 0.75) +  # Error bars for boxplots
+TauAv1_plot <- ggplot(TauAv1_no_outlier,
+                      aes(x = factor(Temp), y = TauAv1, fill = Species)) +
+  
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(color = "black", width = 0.15, size = 1, alpha = 0.6) +
+  stat_boxplot(geom = "errorbar", width = 0.5) +
+  
   theme_classic() +
-  labs(title = "Qa reoxidation kinetics in darkt", 
-       x = "TauAv1", 
-       y = "Site - Depth") +  # Y-axis now represents Site-Depth
+  
+  labs(title = "QA Reoxidation Kinetics in Dark",
+       x = "Temperature",
+       y = expression(tau[Av1])) +
   
   theme(legend.position = "none") +
-  facet_wrap(~ Species, scales = "free_y", ncol = 2) +  # Facet by Species with 2 columns
-  scale_y_discrete(limits = rev(levels(factor(TauAv1_no_outlier$Site_depth)))) 
+  
+  facet_wrap(~ Species)
 
-# Display the plot in R before saving
-print(TauAv1)
+print(TauAv1_plot)
 
 # Define the file name and path for saving
 file_name <- paste0(output_folder, "/TauAv1.png")
 
 # Save the plot
-ggsave(filename = file_name, plot = TauAv1, width = 8, height = 6, dpi = 300)
+ggsave(filename = file_name, plot = TauAv1_plot, width = 8, height = 6, dpi = 300)
 
 # Print the saved file location
 print(paste("Saved the combined plot at", file_name))
+
 ```
 #FIRe STATS
 #Kruskal-Wallis Test- data is not normally distributed
 
 ```{r}
 str(fire.data)
-levels(fire.data$depth)
-levels(fire.data$Species)
+fire.data$Species <- as.factor(fire.data$Species)
+fire.data$Temp <- as.factor(fire.data$Temp)
+
 ```
-# in case you need to select a specific species use the row below. 
-```{r}
-fire.past=fire.data[fire.data$Species=="Pavona",]
-str(fire.past)
-```
+
 # We subset the columns we should test for. at any time, you can add or retract from this list. NOTE, you should look at the specific manner by which the name of the variable is in the object itself.
 ```{r}
-test.vars=c("depth", "Site", "fv_fm", "Sigma", "p", "Pmax.e.s")
+test.vars <- c("fv_fm", "Sigma", "p", "Pmax.e.s", "Fm", "TauAv1")
+
 
 fire.data.to.test=fire.data[,names(fire.data) %in% test.vars]
 str(fire.data.to.test)
 
 ```
+```{r setup, include=FALSE}
+options(encoding = "UTF-8")
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+
 # test for normality and homogeneity of variance
 ```{r}
-Spiro_test=data.frame(do.call(rbind, lapply(fire.data.to.test[,3:6], function(x) shapiro.test(x)[c("statistic", "p.value")])))
-Spiro_test
 
-Leven_test=lapply(fire.data.to.test[,3:6], leveneTest, group = fire.data.to.test$depth)
-Leven_test
+
+
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+
+Shapiro_species <- lapply(test.vars, function(var) {
+  
+  fire.data %>%
+    group_by(Species, Temp) %>%
+    summarise(
+      statistic = shapiro.test(.data[[var]])$statistic,
+      p_value   = shapiro.test(.data[[var]])$p.value,
+      .groups = "drop"
+    ) %>%
+    mutate(Variable = var)
+})
+
+Shapiro_species_df <- bind_rows(Shapiro_species)
+
+write.table(
+  Shapiro_species_df,
+  file = file.path(output_folder, "Shapiro_results.txt"),
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+
+
+
+
+
+
+
 ```
 # if any or all the test are significant, you will need to use non-parametric tests. if both are not significant, you can use ANOVA.
 
@@ -538,40 +603,202 @@ Leven_test
 ### in case the data is normally distributed and the variance is homogeneous
 
 
+
+```{r Levene_test, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+
+
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
+
+fire.data$Species <- as.factor(fire.data$Species)
+fire.data$Temp    <- as.factor(fire.data$Temp)
+
+test.vars <- c("fv_fm", "Sigma", "p", "Pmax.e.s", "Fm", "TauAv1")
+
+Levene_results_list <- list()
+
+for (var in test.vars) {
+
+  if (!var %in% colnames(fire.data)) next
+
+  for (sp in unique(fire.data$Species)) {
+
+    sub_data <- subset(fire.data, Species == sp)
+
+    # Need at least 2 temperature levels
+    if (length(unique(sub_data$Temp)) < 2) next
+
+    test_result <- tryCatch(
+      leveneTest(as.formula(paste(var, "~ Temp")), data = sub_data),
+      error = function(e) NULL
+    )
+
+    if (!is.null(test_result)) {
+      temp_df <- as.data.frame(test_result)
+      temp_df$Species  <- sp
+      temp_df$Variable <- var
+      Levene_results_list[[length(Levene_results_list) + 1]] <- temp_df
+    }
+  }
+}
+
+Levene_species_df <- do.call(rbind, Levene_results_list)
+
+sink(file.path(output_folder, "Levene_results.txt"))
+
+cat("=====================================\n")
+cat("LEVENE HOMOGENEITY TEST RESULTS\n")
+cat("=====================================\n\n")
+
+if (is.null(Levene_species_df) || nrow(Levene_species_df) == 0) {
+  cat("No valid Levene test results generated.\n")
+} else {
+  print(Levene_species_df)
+}
+
+sink()
+
+```
+
+# if any or all the test are significant, you will need to use non-parametric tests. if both are not significant, you can use ANOVA.
+
+
+### in case the data is normally distributed and the variance is homogeneous
+
+
+
+
 ```{r}
 #One-way ANOVA test
-aov_fire.data <- apply(fire.data.to.test[,3:6], 2, function(x) aov(x ~ depth, data = fire.data.to.test))
+aov_fire.data <- apply(fire.data.to.test[,3:6], 2, function(x) aov(x ~ Temp, data = fire.data.to.test))
 aov_res_df <- as.data.frame(do.call(rbind, lapply(aov_fire.data, broom::tidy)))
 aov_res_df
 
 ```
 ## post-hoc Tukey test, only in case ANOVA was significant, for pair-wise comparisons
 ```{r}
-tukey_res <- sapply(aov_fire.data , function(x) TukeyHSD(x, "depth", ordered = TRUE))
+tukey_res <- sapply(aov_fire.data , function(x) TukeyHSD(x, "Temp", ordered = TRUE))
 tukey_res_df <- as.data.frame(do.call(rbind, Map(cbind, Name = names(tukey_res), tukey_res)))
 tukey_res_df
 
 ```
 ### in case the data is not normally distributed and/or variance is not equal
 
-##Kruskal-Walis test
+##Kruskal-Walis test per species
 ```{r}
-KW_fire.data <- apply(fire.data.to.test[,3:6], 2, function(x) kruskal.test(x ~ depth, data = fire.data.to.test))
-KW_res_df <- as.data.frame(do.call(rbind, lapply(KW_fire.data, broom::tidy)))
-KW_res_df
+
+
+
+
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
+
+fire.data$Species <- as.factor(fire.data$Species)
+fire.data$Temp    <- as.factor(fire.data$Temp)
+
+test.vars <- c("fv_fm", "Sigma", "p", "Pmax.e.s", "Fm", "TauAv1")
+
+results_list <- list()
+
+for (var in test.vars) {
+  
+  for (sp in unique(fire.data$Species)) {
+    
+    sub_data <- subset(fire.data, Species == sp)
+    
+    # Remove NA for that variable
+    sub_data <- sub_data[!is.na(sub_data[[var]]), ]
+    
+    # Must have at least 2 temperature groups
+    if (length(unique(sub_data$Temp)) < 2) next
+    
+    test <- kruskal.test(as.formula(paste(var, "~ Temp")), data = sub_data)
+    
+    results_list[[length(results_list)+1]] <- data.frame(
+      Variable = var,
+      Species  = sp,
+      Chi_sq   = test$statistic,
+      df       = test$parameter,
+      p_value  = test$p.value
+    )
+  }
+}
+
+Kruskal_species_df <- do.call(rbind, results_list)
+
+write.table(
+  Kruskal_species_df,
+  file = file.path(output_folder, "Kruskal_results.txt"),
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+
 ```
+
+
+
 ##post-hoc Dunn test, in case any of KW test are significant, for pairwise comparisons.
 ```{r}
-Dunn_fire.data <- apply(fire.data.to.test[,3:6], 2, function(x) dunnTest(x ~ depth, data = fire.data.to.test, table=TRUE))
-Dunn_res_df_Fv.Fm <- data.frame(Dunn_fire.data$Fv.Fm$res)
-Dunn_res_df_Fv.Fm$Factor="Fv.Fm"
-Dunn_res_df_Sigma <- data.frame(Dunn_fire.data$Sigma$res)
-Dunn_res_df_Sigma$Factor="Sigma"
-Dunn_res_df_p <- data.frame(Dunn_fire.data$p$res)
-Dunn_res_df_p$Factor="p"
-Dunn_res_df_Pmax.e.s <- data.frame(Dunn_fire.data$Pmax.e.s$res)
-Dunn_res_df_Pmax.e.s$Factor="Pmax.e.s"
 
-Dunn_all=rbind(Dunn_res_df_Fv.Fm,Dunn_res_df_Sigma,Dunn_res_df_p,Dunn_res_df_Pmax.e.s)
+
+
+# Output folder
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
+
+fire.data$Species <- as.factor(fire.data$Species)
+fire.data$Temp    <- as.factor(fire.data$Temp)
+
+test.vars <- c("fv_fm", "Sigma", "p", "Pmax.e.s", "Fm", "TauAv1")
+
+Dunn_results_list <- list()
+
+for (var in test.vars) {
+  
+  for (sp in unique(fire.data$Species)) {
+    
+    sub_data <- subset(fire.data, Species == sp)
+    
+    # Remove NA
+    sub_data <- sub_data[!is.na(sub_data[[var]]), ]
+    
+    # Need at least 2 temperature groups
+    if (length(unique(sub_data$Temp)) < 2) next
+    
+    # Run Dunn test
+    dunn_res <- tryCatch(
+      dunnTest(as.formula(paste(var, "~ Temp")),
+               data = sub_data,
+               method = "bonferroni"),  # change to "holm" or "BH" if preferred
+      error = function(e) NULL
+    )
+    
+    if (!is.null(dunn_res)) {
+      
+      temp_df <- dunn_res$res
+      temp_df$Variable <- var
+      temp_df$Species  <- sp
+      
+      Dunn_results_list[[length(Dunn_results_list) + 1]] <- temp_df
+    }
+  }
+}
+
+Dunn_species_df <- do.call(rbind, Dunn_results_list)
+
+# Save results
+write.table(
+  Dunn_species_df,
+  file = file.path(output_folder, "Dunn_results.txt"),
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+
 ```
+
+
+
 
