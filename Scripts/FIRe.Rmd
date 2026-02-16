@@ -50,7 +50,7 @@ library(psych)
 #Load Data
 ```{r}
 
-fire.data <- read.csv("/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/FIRE_Samara_anotated.xls.csv", stringsAsFactors = TRUE)
+fire.data <- read.csv("/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/FIRE_Papagayo_anotated.xls.csv", stringsAsFactors = TRUE)
 
 
 
@@ -99,7 +99,7 @@ print(fvfm)
 
 
 # Define the file name and path for saving
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/fvfm.png")
 
 # Save the plot
@@ -189,7 +189,7 @@ print(sigma_plot)
 
 
 # Save the plot
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/sigma_plot.png")
 
 # Use the correct plot object (sigma_plot)
@@ -262,7 +262,7 @@ print(pmax_plot)
 
 
 # Save the plot
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/pmax_plot.png")
 
 # Use the correct plot object (pmax_plot)
@@ -340,7 +340,7 @@ print(p_plot)
 
 
 # Save the plot
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/p_plot.png")
 
 # Use the correct plot object (pmax_plot)
@@ -416,7 +416,7 @@ print(Fm_plot)
 
 
 # Save the plot
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/Fm_plot.png")
 
 # Use the correct plot object (Fm_plot)
@@ -494,7 +494,7 @@ print(TauAv1_plot)
 
 
 # Save the plot
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 file_name <- paste0(output_folder, "/TauAv1_plot.png")
 
 # Use the correct plot object (TauAv1_plot)
@@ -566,19 +566,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 
 Shapiro_species <- lapply(test.vars, function(var) {
   
   fire.data %>%
+    filter(!is.na(Species),
+           !is.na(Temp),
+           !is.na(.data[[var]])) %>%
     group_by(Species, Temp) %>%
     summarise(
-      statistic = shapiro.test(.data[[var]])$statistic,
-      p_value   = shapiro.test(.data[[var]])$p.value,
+      n = n(),
+      statistic = if(n() >= 3) shapiro.test(.data[[var]])$statistic else NA,
+      p_value   = if(n() >= 3) shapiro.test(.data[[var]])$p.value else NA,
       .groups = "drop"
     ) %>%
     mutate(Variable = var)
 })
+
 
 Shapiro_species_df <- bind_rows(Shapiro_species)
 
@@ -604,11 +609,12 @@ write.table(
 
 
 
+
 ```{r Levene_test, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 
 
 
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
 
 fire.data$Species <- as.factor(fire.data$Species)
@@ -691,7 +697,7 @@ tukey_res_df
 
 
 
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
 
 fire.data$Species <- as.factor(fire.data$Species)
@@ -745,7 +751,7 @@ write.table(
 
 
 # Output folder
-output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+output_folder <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 dir.create(output_folder, recursive = TRUE, showWarnings = FALSE)
 
 fire.data$Species <- as.factor(fire.data$Species)
