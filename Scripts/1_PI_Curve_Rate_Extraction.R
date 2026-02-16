@@ -15,13 +15,20 @@ library(tidyr)
 library(ggplot2)
 library(cowplot)
 library(hms)
+#install.packages("Rfit")
+library(Rfit)
+library(future)
+library(furrr)
+
+plan(multisession)
+
 
 ############################################################
 ## Paths
 ############################################################
 
-path.p <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Data/1_pi_curves"
-output_path <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output"
+path.p <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Data/2_pi_curves"
+output_path <- "/Users/talimass/Documents/Documents - MacBook Pro/GitHub/Costar-Rica-TPC/Output/Papagayo"
 
 if (!dir.exists(output_path)) dir.create(output_path, recursive = TRUE)
 
@@ -38,12 +45,12 @@ file.names <- file.names[!grepl("^bk", file.names)]   # remove blanks
 ############################################################
 
 sample.info <- read_csv(
-  file.path(path.p, "1_pi_curves_sample_metadata - 1_pi_curves_sample_metadata.csv"),
+  file.path(path.p, "2_pi_curves_sample_metadata.csv"),
   show_col_types = FALSE
 )
 
 run.info <- read_csv(
-  file.path(path.p, "1_pi_curves_run_metadata - 1_pi_curves_run_metadata.csv"),
+  file.path(path.p, "2_pi_curves_run_metadata.csv"),
   show_col_types = FALSE
 )
 
@@ -53,7 +60,7 @@ run.info <- read_csv(
 
 sample.info2 <- sample.info %>%
   mutate(
-    Chamber = as.integer(Chamber.Channel),
+    Chamber = as.integer(Chamber),
     Chamber.Vol.L = Chamber.Vol.L / 1000,
     colony_id = as.character(colony_id)
   )
@@ -234,8 +241,14 @@ cat("PI plot saved to:", output_path, "\n")
 ## ---------------------------
 ## Fit LoLinR regressions per colony x light interval
 ## ---------------------------
+library(LoLinR)
+library(furrr)
+library(future)
+library(purrr)
+library(dplyr)
+
 fit_reg <- function(dat) {
-  rankLocReg(
+  LoLinR::rankLocReg(
     xall = as.numeric(dat$Time),
     yall = dat$Value,
     alpha = 0.2,
@@ -250,10 +263,19 @@ df_reg <- df3 %>%
   group_by(colony_id, Light_Value) %>%
   nest() %>%
   mutate(
-    rankLcRg = future_map(data, fit_reg),
+    rankLcRg = future_map(
+      data,
+      fit_reg,
+      .options = furrr::furrr_options(
+        packages = "LoLinR"
+      )
+    ),
     MeanTemp = map_dbl(data, ~ mean(.x$Temp, na.rm = TRUE))
   ) %>%
   ungroup()
+
+
+
 
 ## ---------------------------
 ## Extract slopes (µmol L^-1 s^-1) and convert to µmol s^-1 via chamber volume
