@@ -1,0 +1,8 @@
+Date,colony_id,Chamber,Position,Bin.ID,Run,Species,Temp.Cat,Chamber.Vol.mL,Notes,Sensor
+20260215,21,1,,2,2,Pocillopora,24,,,1
+20260215,22,2,,2,2,Pocillopora,24,,,2
+20260215,23,3,,2,2,Pocillopora,24,,,7
+20260215,31,11,,2,2,Porites,24,,,4
+20260215,32,12,,2,2,Porites,24,,,6
+20260215,33,13,,2,2,Porites,24,,,8
+20260215,bk,8,,2,2,blank,24,,,5
